@@ -7,6 +7,10 @@ export interface SearchFilters {
   dateFilter: 'Any' | 'Today' | 'This Week' | 'This Month';
   regionCode: string;
   language: string;
+  videoDuration: 'Any' | 'short' | 'medium' | 'long';
+  excludedRegions: string[];
+  excludeLive: boolean;
+  withPaidPromotion: boolean;
 }
 
 export interface MergedVideo {
@@ -18,6 +22,8 @@ export interface MergedVideo {
   publishedAt: string;
   viewCount: number;
   subscriberCount: number;
+  durationInSeconds: number;
+  country?: string;
 }
 
 export interface YTSearchItem {
@@ -29,15 +35,18 @@ export interface YTSearchItem {
     description: string;
     thumbnails: { medium: { url: string } };
     channelTitle: string;
+    liveBroadcastContent: string;
   };
 }
 
 export interface YTVideoItem {
   id: string;
   statistics: { viewCount: string };
+  contentDetails: { duration: string };
 }
 
 export interface YTChannelItem {
   id: string;
   statistics: { subscriberCount: string };
+  snippet?: { country?: string };
 }
