@@ -1,7 +1,16 @@
-import { useState, useCallback } from 'react';
-import { SearchFilters } from './types';
-import { ExtendedYouTubeSearchVideoItem } from './types';
-import youtubeSearchService from './services/youtube-search';
+import React, { createContext, useContext, useState, useCallback, PropsWithChildren } from 'react';
+import { SearchFilters, ExtendedYouTubeSearchVideoItem } from '@/types';
+import youtubeSearchService from '@/services/youtube-search';
+
+interface YouTubeSearchContextValue {
+  data: ExtendedYouTubeSearchVideoItem[] | null;
+  loading: boolean;
+  error: string | null;
+  filters: SearchFilters;
+  onSearch: () => Promise<void>;
+  onChangeFilter: <K extends keyof SearchFilters>(name: K, value: SearchFilters[K]) => void;
+  onLoadMore?: () => Promise<void>;
+}
 
 const FILTERS_INITIAL_STATE: SearchFilters = {
   keyword: '',
@@ -24,12 +33,13 @@ const getPublishedAfterDate = (filter: SearchFilters['dateFilter']): string | un
   return date.toISOString();
 };
 
-export const useYouTubeSearch = () => {
+const YouTubeSearchContext = createContext<YouTubeSearchContextValue | null>(null);
+
+export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [data, setData] = useState<ExtendedYouTubeSearchVideoItem[] | null>(null);
   const [filters, setFilters] = useState<SearchFilters>(FILTERS_INITIAL_STATE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
 
   const executeSearch = useCallback(async (pageToken?: string) => {
@@ -47,12 +57,12 @@ export const useYouTubeSearch = () => {
         q: keyword,
         ...resFilters,
         ...(publishedAfter && { publishedAfter }),
-        ...(regionCode && regionCode !== 'Any' && { regionCode: regionCode }),
+        ...(regionCode && regionCode !== 'Any' && { regionCode }),
         ...(language && language !== 'Any' && { relevanceLanguage: language }),
         ...(pageToken && { pageToken }),
         ...(withPaidPromotion && { videoPaidProductPlacement: 'true' }),
         ...(excludeLive && { eventType: 'completed' }),
-        ...(videoDuration && videoDuration !== 'Any' && { videoDuration: videoDuration }),
+        ...(videoDuration && videoDuration !== 'Any' && { videoDuration }),
       });
 
       return {
@@ -61,6 +71,7 @@ export const useYouTubeSearch = () => {
       };
     } catch (err: any) {
       setError(err?.message || 'An unexpected error occurred');
+      return null;
     } finally {
       setLoading(false);
     }
@@ -79,7 +90,7 @@ export const useYouTubeSearch = () => {
     }
   }, [executeSearch, nextPageToken]);
 
-  const onChangeFilter = useCallback((name: keyof SearchFilters, value: SearchFilters[keyof SearchFilters]) => {
+  const onChangeFilter = useCallback(<K extends keyof SearchFilters>(name: K, value: SearchFilters[K]) => {
     setFilters((prev) => ({
       ...prev,
       [name]: value,
@@ -98,5 +109,29 @@ export const useYouTubeSearch = () => {
     }
   }, [executeSearch]);
 
-  return { data, loading, error, filters, onSearch, onChangeFilter, onLoadMore: !!nextPageToken ? onLoadMore : undefined };
+  const value: YouTubeSearchContextValue = {
+    data,
+    loading,
+    error,
+    filters,
+    onSearch,
+    onChangeFilter,
+    onLoadMore: !!nextPageToken ? onLoadMore : undefined,
+  };
+
+  return (
+    <YouTubeSearchContext.Provider value={value}>
+      {children}
+    </YouTubeSearchContext.Provider>
+  );
+};
+
+export const useYouTubeSearch = (): YouTubeSearchContextValue => {
+  const context = useContext(YouTubeSearchContext);
+  
+  if (!context) {
+    throw new Error('useYouTubeSearch must be used within a YouTubeSearchProvider');
+  }
+  
+  return context;
 };

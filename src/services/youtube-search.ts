@@ -1,4 +1,4 @@
-import { YouTubeChannelListResponse, YouTubeVideoListResponse, YouTubeSearchVideoResponse, SearchFilters, YouTubeChannelItem, YouTubeSearchVideoOptions, ExtendedYouTubeSearchVideoItem } from '../types';
+import { YouTubeChannelListResponse, YouTubeVideoListResponse, YouTubeSearchVideoResponse, SearchFilters, YouTubeChannelItem, YouTubeSearchVideoOptions, ExtendedYouTubeSearchVideoItem } from '@/types';
 
 class YouTubeSearchService {
   private readonly BASE_URL = 'https://www.googleapis.com/youtube/v3';
@@ -65,12 +65,12 @@ class YouTubeSearchService {
     }
 
     try {
-    const url = `${this.BASE_URL}/channels?part=statistics,snippet&id=${Array.from(idsToFetch).join(',')}&key=${this.API_KEY}`;
-    const data = await this.processFetch<YouTubeChannelListResponse>(url);
+      const url = `${this.BASE_URL}/channels?part=statistics,snippet&id=${Array.from(idsToFetch).join(',')}&key=${this.API_KEY}`;
+      const data = await this.processFetch<YouTubeChannelListResponse>(url);
 
-    data.items.forEach(item => this.channels.set(item.id, item));
+      data.items.forEach(item => this.channels.set(item.id, item));
 
-    return [...cachedChannels, ...data.items];
+      return [...cachedChannels, ...data.items];
     } catch (error: unknown) {
       throw new Error(`Failed to fetch channels: ${(error as Error)?.message}`);
     }
@@ -82,10 +82,10 @@ class YouTubeSearchService {
     }
 
     try {
-    const url = `${this.BASE_URL}/videos?part=statistics,contentDetails&id=${videoIds.join(',')}&key=${this.API_KEY}`;
-    const data = await this.processFetch<YouTubeVideoListResponse>(url);
+      const url = `${this.BASE_URL}/videos?part=statistics,contentDetails&id=${videoIds.join(',')}&key=${this.API_KEY}`;
+      const data = await this.processFetch<YouTubeVideoListResponse>(url);
 
-    return data.items;
+      return data.items;
     } catch (error: unknown) {
       throw new Error(`Failed to fetch videos: ${(error as Error)?.message}`);
     }
@@ -93,10 +93,10 @@ class YouTubeSearchService {
 
   public async searchVideos({ minSubs, maxSubs, minViews, maxViews, excludedRegions, ...options }: YouTubeSearchVideoOptions) {
     try {
-    const queryParams: Record<string, string> = {
-      ...options,
-      key: this.API_KEY,
-    };
+      const queryParams: Record<string, string> = {
+        ...options,
+        key: this.API_KEY,
+      };
 
       const url = new URL(`${this.BASE_URL}/search`);
       url.search = new URLSearchParams(queryParams).toString();
@@ -150,5 +150,5 @@ class YouTubeSearchService {
   }
 }
 
-// Export the singleton instance directly!
+// Export the singleton instance
 export default new YouTubeSearchService();

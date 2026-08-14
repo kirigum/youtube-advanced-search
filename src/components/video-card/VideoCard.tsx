@@ -1,10 +1,10 @@
 import { FC } from "react";
 
-import { ExtendedYouTubeSearchVideoItem } from "../../types";
-import { parseISO8601Duration, formatNumber } from "../../utils";
+import { ExtendedYouTubeSearchVideoItem } from "@/types";
+import { parseISO8601Duration, formatToCompactNumber } from "@/utils";
 import { getFlagEmoji } from "./utils";
 
-export const SearchResultCard: FC<{
+export const VideoCard: FC<{
   video: ExtendedYouTubeSearchVideoItem;
 }> = ({ video, ...resProps }) => {
   const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
@@ -76,14 +76,14 @@ export const SearchResultCard: FC<{
         <div className="flex justify-between text-xs text-gray-500 border-t pt-3 mt-auto mb-4">
           {video.statistics?.viewCount && (
             <span>
-              👀 {formatNumber(Number(video.statistics.viewCount))} views
+              👀 {formatToCompactNumber(Number(video.statistics.viewCount))} views
             </span>
           )}
 
           {video.channel?.statistics?.subscriberCount && (
             <span>
               👥{" "}
-              {formatNumber(Number(video.channel.statistics.subscriberCount))}{" "}
+              {formatToCompactNumber(Number(video.channel.statistics.subscriberCount))}{" "}
               subs
             </span>
           )}
