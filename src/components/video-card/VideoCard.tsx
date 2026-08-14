@@ -1,61 +1,77 @@
-import { FC } from 'react';
+import { Eye, Play, Users } from 'lucide-react';
+import { FC, HTMLAttributes } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 import { ExtendedYouTubeSearchVideoItem } from '@/types';
 import { formatToCompactNumber, parseISO8601Duration } from '@/utils';
 
 import { getFlagEmoji } from './utils';
 
-export const VideoCard: FC<{
+interface VideoCardProps extends HTMLAttributes<HTMLDivElement> {
   video: ExtendedYouTubeSearchVideoItem;
-}> = ({ video, ...resProps }) => {
+}
+
+export const VideoCard: FC<VideoCardProps> = ({ video, ...resProps }) => {
   const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
   const thumbnailUrl =
     video.snippet.thumbnails?.high?.url ||
     video.snippet.thumbnails?.medium?.url ||
     video.snippet.thumbnails?.default?.url;
+
   const duration = video.contentDetails?.duration
     ? parseISO8601Duration(video.contentDetails.duration)
     : null;
 
   return (
-    <div
-      className="flex flex-col bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+    <Card
+      className="flex flex-col overflow-hidden group transition-all hover:shadow-md border-border/50"
       {...resProps}
     >
-      <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="block relative group">
-        <img src={thumbnailUrl} alt={video.snippet.title} className="w-full h-48 object-cover" />
+      <a
+        href={videoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block relative overflow-hidden"
+      >
+        <img
+          src={thumbnailUrl}
+          alt={video.snippet.title}
+          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+        />
 
         {duration && (
-          <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs font-medium px-1.5 py-0.5 rounded">
+          <Badge
+            variant="secondary"
+            className="absolute bottom-2 right-2 bg-black/80 hover:bg-black/80 text-white border-none rounded-sm px-1.5 py-0.5 text-xs font-medium backdrop-blur-sm pointer-events-none"
+          >
             {`${duration.hours}:${duration.minutes}:${duration.seconds}`}
-          </div>
+          </Badge>
         )}
 
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
-          <svg
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+          <Play
             className="w-12 h-12 text-white opacity-0 group-hover:opacity-90 drop-shadow-md transition-opacity"
             fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
-          </svg>
+          />
         </div>
       </a>
 
-      <div className="p-4 flex flex-col flex-grow">
+      <CardContent className="p-4 flex flex-col flex-grow">
         <a
           href={videoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:text-blue-600 transition-colors"
+          className="hover:underline decoration-primary transition-colors"
         >
-          <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2">{video.snippet.title}</h3>
+          <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{video.snippet.title}</h3>
         </a>
 
         {video.channel && (
-          <p className="text-sm text-gray-600 font-medium mb-3 flex items-center gap-1">
+          <p className="text-sm text-muted-foreground font-medium mb-4 flex items-center gap-1.5">
             {video.channel.snippet.title}
-
             {video.channel.snippet.country && (
               <span title={`Channel Region: ${video.channel.snippet.country}`}>
                 {getFlagEmoji(video.channel.snippet.country)}
@@ -64,26 +80,30 @@ export const VideoCard: FC<{
           </p>
         )}
 
-        <div className="flex justify-between text-xs text-gray-500 border-t pt-3 mt-auto mb-4">
+        <div className="flex justify-between items-center text-xs text-muted-foreground border-t pt-4 mt-auto">
           {video.statistics?.viewCount && (
-            <span>👀 {formatToCompactNumber(Number(video.statistics.viewCount))} views</span>
+            <div className="flex items-center gap-1.5" title="Views">
+              <Eye className="w-4 h-4" />
+              <span>{formatToCompactNumber(Number(video.statistics.viewCount))}</span>
+            </div>
           )}
 
           {video.channel?.statistics?.subscriberCount && (
-            <span>
-              👥 {formatToCompactNumber(Number(video.channel.statistics.subscriberCount))} subs
-            </span>
+            <div className="flex items-center gap-1.5" title="Subscribers">
+              <Users className="w-4 h-4" />
+              <span>{formatToCompactNumber(Number(video.channel.statistics.subscriberCount))}</span>
+            </div>
           )}
         </div>
-        <a
-          href={videoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full block text-center bg-red-600 text-white font-medium py-2 rounded-md hover:bg-red-700 transition-colors mt-auto"
-        >
-          Watch on YouTube
-        </a>
-      </div>
-    </div>
+      </CardContent>
+
+      <CardFooter className="px-4 pb-4 pt-0 mt-auto">
+        <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white shadow-sm">
+          <a href={videoUrl} target="_blank" rel="noopener noreferrer">
+            Watch on YouTube
+          </a>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
