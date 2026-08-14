@@ -1,7 +1,18 @@
 import { FC } from 'react';
 
+import { Label } from '@/components/ui/label';
+import { MultiSelect } from '@/components/ui/multi-select';
 import { useYouTubeSearch } from '@/context/youtube-search-context';
 import { SearchFilters } from '@/types';
+
+const REGION_OPTIONS = [
+  { value: 'RU', label: 'Russia' },
+  { value: 'IN', label: 'India' },
+  { value: 'CN', label: 'China' },
+  { value: 'BR', label: 'Brazil' },
+  { value: 'US', label: 'USA' },
+  { value: 'GB', label: 'UK' },
+];
 
 export const SearchForm: FC = () => {
   const { loading, filters, onSearch, onChangeFilter } = useYouTubeSearch();
@@ -209,36 +220,17 @@ export const SearchForm: FC = () => {
         </div>
       </div>
 
-      <div className="col-span-1 md:col-span-2 lg:col-span-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Exclude Channel Regions
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 bg-white p-3 border border-gray-300 rounded-md">
-          {[
-            { code: 'RU', name: 'Russia' },
-            { code: 'IN', name: 'India' },
-            { code: 'CN', name: 'China' },
-            { code: 'BR', name: 'Brazil' },
-            { code: 'US', name: 'USA' },
-            { code: 'GB', name: 'UK' },
-          ].map((country) => (
-            <label
-              key={country.code}
-              className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors"
-            >
-              <input
-                type="checkbox"
-                name="excludedRegions"
-                value={country.code}
-                checked={filters.excludedRegions.includes(country.code)}
-                onChange={handleInputChange}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
-              />
-              <span className="text-sm text-gray-700 select-none">{country.name}</span>
-            </label>
-          ))}
-        </div>
-        <p className="text-xs text-gray-500 mt-1">
+      <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-muted/30 p-4 border rounded-lg mt-2">
+        <Label className="mb-3 block text-foreground">Exclude Channel Regions</Label>
+
+        <MultiSelect
+          options={REGION_OPTIONS}
+          selected={filters.excludedRegions || []}
+          onChange={(values) => onChangeFilter('excludedRegions', values)}
+          placeholder="Select regions to exclude..."
+        />
+
+        <p className="text-xs text-muted-foreground mt-3">
           Note: This only works if the creator has publicly set their channel location on YouTube.
         </p>
       </div>

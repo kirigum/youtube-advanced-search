@@ -4,7 +4,6 @@ import { FC, HTMLAttributes } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-
 import { ExtendedYouTubeSearchVideoItem } from '@/types';
 import { formatToCompactNumber, parseISO8601Duration } from '@/utils';
 
