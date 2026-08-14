@@ -66,8 +66,8 @@ The app will be available at [http://localhost:5173](http://localhost:5173) (Vit
 
 ## Available Scripts
 
-| Command           | Description                                              |
-| ----------------- | -------------------------------------------------------- |
-| `npm run dev`     | Start the Vite dev server with hot module reload.        |
-| `npm run build`   | Type-check with `tsc` and build a production bundle.     |
-| `npm run preview` | Serve the production build locally for smoke testing.   |
+| Command           | Description                                           |
+| ----------------- | ----------------------------------------------------- |
+| `npm run dev`     | Start the Vite dev server with hot module reload.     |
+| `npm run build`   | Type-check with `tsc` and build a production bundle.  |
+| `npm run preview` | Serve the production build locally for smoke testing. |
