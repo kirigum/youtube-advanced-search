@@ -49,10 +49,7 @@ export const VideoCard: FC<{
           rel="noopener noreferrer"
           className="hover:text-blue-600 transition-colors"
         >
-          <h3
-            className="font-semibold text-gray-900 line-clamp-2 mb-2"
-            dangerouslySetInnerHTML={{ __html: video.snippet.title }}
-          />
+          <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2">{video.snippet.title}</h3>
         </a>
 
         {video.channel && (

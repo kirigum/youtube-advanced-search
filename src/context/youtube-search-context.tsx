@@ -16,21 +16,32 @@ interface YouTubeSearchContextValue {
 const FILTERS_INITIAL_STATE: SearchFilters = {
   keyword: '',
   order: 'relevance',
-  dateFilter: 'Any',
-  regionCode: 'Any',
-  language: 'Any',
-  videoDuration: 'Any',
+  dateFilter: 'any',
+  regionCode: 'any',
+  relevanceLanguage: 'any',
+  videoDuration: 'any',
   excludedRegions: [],
   excludeLive: false,
   withPaidPromotion: false,
 };
 
-const getPublishedAfterDate = (filter: SearchFilters['dateFilter']): string | undefined => {
-  if (filter === 'Any') return undefined;
+const getPublishedAfterDate = (value: string): string | undefined => {
+  if (value === 'any') {
+    return;
+  }
+
   const date = new Date();
-  if (filter === 'Today') date.setDate(date.getDate() - 1);
-  if (filter === 'This Week') date.setDate(date.getDate() - 7);
-  if (filter === 'This Month') date.setMonth(date.getMonth() - 1);
+
+  if (value === 'Today') {
+    date.setDate(date.getDate() - 1);
+  }
+  if (value === 'This Week') {
+    date.setDate(date.getDate() - 7);
+  }
+  if (value === 'This Month') {
+    date.setMonth(date.getMonth() - 1);
+  }
+
   return date.toISOString();
 };
 
@@ -49,16 +60,14 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
       setError(null);
 
       try {
-        const {
-          keyword,
-          dateFilter,
-          withPaidPromotion,
-          excludeLive,
-          language,
-          regionCode,
-          videoDuration,
-          ...resFilters
-        } = filters;
+        const { keyword, dateFilter, withPaidPromotion, excludeLive, ...resFilters } = filters;
+        const omittedFilters = Object.entries(resFilters).reduce((acc, [key, value]) => {
+          if (!value || (typeof value === 'string' && value === 'any')) {
+            return acc;
+          }
+
+          return { ...acc, [key]: value };
+        }, {});
         const publishedAfter = getPublishedAfterDate(dateFilter);
 
         const searchData = await youtubeSearchService.searchVideos({
@@ -66,14 +75,11 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
           type: 'video',
           maxResults: '50',
           q: keyword,
-          ...resFilters,
+          ...omittedFilters,
           ...(publishedAfter && { publishedAfter }),
-          ...(regionCode && regionCode !== 'Any' && { regionCode }),
-          ...(language && language !== 'Any' && { relevanceLanguage: language }),
           ...(pageToken && { pageToken }),
           ...(withPaidPromotion && { videoPaidProductPlacement: 'true' }),
           ...(excludeLive && { eventType: 'completed' }),
-          ...(videoDuration && videoDuration !== 'Any' && { videoDuration }),
         });
 
         return {

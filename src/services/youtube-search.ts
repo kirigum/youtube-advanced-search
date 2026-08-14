@@ -1,6 +1,5 @@
 import {
   ExtendedYouTubeSearchVideoItem,
-  SearchFilters,
   YouTubeChannelItem,
   YouTubeChannelListResponse,
   YouTubeSearchVideoOptions,
@@ -34,26 +33,6 @@ class YouTubeSearchService {
     }
 
     return response.json();
-  }
-
-  public getPublishedAfterDate(dateFilter: SearchFilters['dateFilter']): string | undefined {
-    if (dateFilter === 'Any') {
-      return undefined;
-    }
-
-    const date = new Date();
-
-    if (dateFilter === 'Today') {
-      date.setDate(date.getDate() - 1);
-    }
-    if (dateFilter === 'This Week') {
-      date.setDate(date.getDate() - 7);
-    }
-    if (dateFilter === 'This Month') {
-      date.setMonth(date.getMonth() - 1);
-    }
-
-    return date.toISOString();
   }
 
   public async getChannels(channelIds: string[]) {

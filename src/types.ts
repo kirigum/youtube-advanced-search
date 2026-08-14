@@ -4,10 +4,10 @@ export interface SearchFilters {
   maxViews?: number;
   minSubs?: number;
   maxSubs?: number;
-  dateFilter: 'Any' | 'Today' | 'This Week' | 'This Month';
+  dateFilter: 'any' | 'Today' | 'This Week' | 'This Month';
   regionCode: string;
-  language: string;
-  videoDuration: 'Any' | 'short' | 'medium' | 'long';
+  relevanceLanguage: string;
+  videoDuration: 'any' | 'short' | 'medium' | 'long';
   excludedRegions: string[];
   excludeLive: boolean;
   withPaidPromotion: boolean;

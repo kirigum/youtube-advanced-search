@@ -141,7 +141,7 @@ export const SearchForm: FC = () => {
           onChange={handleInputChange}
           className="w-full p-2 border border-gray-300 rounded-md"
         >
-          <option value="any">Any Length</option>
+          <option value="any">Any</option>
           <option value="short">Short (&lt; 4 mins)</option>
           <option value="medium">Medium (4-20 mins)</option>
           <option value="long">Long (&gt; 20 mins)</option>
@@ -156,7 +156,7 @@ export const SearchForm: FC = () => {
           onChange={handleInputChange}
           className="w-full p-2 border border-gray-300 rounded-md"
         >
-          <option value="Any">Any</option>
+          <option value="any">Any</option>
           <option value="Today">Today</option>
           <option value="This Week">This Week</option>
           <option value="This Month">This Month</option>
@@ -187,7 +187,7 @@ export const SearchForm: FC = () => {
             onChange={handleInputChange}
             className="w-full p-2 border border-gray-300 rounded-md"
           >
-            <option value="Any">Any</option>
+            <option value="any">Any</option>
             <option value="US">US</option>
             <option value="GB">UK</option>
             <option value="CA">Canada</option>
@@ -197,12 +197,12 @@ export const SearchForm: FC = () => {
         <div className="w-1/2">
           <label className="block text-sm font-medium text-gray-700 mb-1">Language</label>
           <select
-            name="language"
-            value={filters.language}
+            name="relevanceLanguage"
+            value={filters.relevanceLanguage}
             onChange={handleInputChange}
             className="w-full p-2 border border-gray-300 rounded-md"
           >
-            <option value="Any">Any</option>
+            <option value="any">Any</option>
             <option value="en">English</option>
             <option value="es">Spanish</option>
           </select>
