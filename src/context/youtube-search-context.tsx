@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useCallback, PropsWithChildren } from 'react';
-import { SearchFilters, ExtendedYouTubeSearchVideoItem } from '@/types';
+import React, { PropsWithChildren, createContext, useCallback, useContext, useState } from 'react';
+
 import youtubeSearchService from '@/services/youtube-search';
+import { ExtendedYouTubeSearchVideoItem, SearchFilters } from '@/types';
 
 interface YouTubeSearchContextValue {
   data: ExtendedYouTubeSearchVideoItem[] | null;
@@ -42,40 +43,52 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
   const [error, setError] = useState<string | null>(null);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
 
-  const executeSearch = useCallback(async (pageToken?: string) => {
-    setLoading(true);
-    setError(null);
+  const executeSearch = useCallback(
+    async (pageToken?: string) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const { order, keyword, dateFilter, withPaidPromotion, excludeLive, language, regionCode, videoDuration, ...resFilters } = filters;
-      const publishedAfter = getPublishedAfterDate(dateFilter);
+      try {
+        const {
+          keyword,
+          dateFilter,
+          withPaidPromotion,
+          excludeLive,
+          language,
+          regionCode,
+          videoDuration,
+          ...resFilters
+        } = filters;
+        const publishedAfter = getPublishedAfterDate(dateFilter);
 
-      const searchData = await youtubeSearchService.searchVideos({
-        part: 'snippet',
-        type: 'video',
-        maxResults: '50',
-        q: keyword,
-        ...resFilters,
-        ...(publishedAfter && { publishedAfter }),
-        ...(regionCode && regionCode !== 'Any' && { regionCode }),
-        ...(language && language !== 'Any' && { relevanceLanguage: language }),
-        ...(pageToken && { pageToken }),
-        ...(withPaidPromotion && { videoPaidProductPlacement: 'true' }),
-        ...(excludeLive && { eventType: 'completed' }),
-        ...(videoDuration && videoDuration !== 'Any' && { videoDuration }),
-      });
+        const searchData = await youtubeSearchService.searchVideos({
+          part: 'snippet',
+          type: 'video',
+          maxResults: '50',
+          q: keyword,
+          ...resFilters,
+          ...(publishedAfter && { publishedAfter }),
+          ...(regionCode && regionCode !== 'Any' && { regionCode }),
+          ...(language && language !== 'Any' && { relevanceLanguage: language }),
+          ...(pageToken && { pageToken }),
+          ...(withPaidPromotion && { videoPaidProductPlacement: 'true' }),
+          ...(excludeLive && { eventType: 'completed' }),
+          ...(videoDuration && videoDuration !== 'Any' && { videoDuration }),
+        });
 
-      return {
-        items: searchData.items,
-        nextPageToken: searchData.nextPageToken ?? null,
-      };
-    } catch (err: any) {
-      setError(err?.message || 'An unexpected error occurred');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
+        return {
+          items: searchData.items,
+          nextPageToken: searchData.nextPageToken ?? null,
+        };
+      } catch (err: unknown) {
+        setError((err as Error)?.message || 'An unexpected error occurred');
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [filters],
+  );
 
   const onLoadMore = useCallback(async () => {
     if (!nextPageToken) {
@@ -90,12 +103,15 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
     }
   }, [executeSearch, nextPageToken]);
 
-  const onChangeFilter = useCallback(<K extends keyof SearchFilters>(name: K, value: SearchFilters[K]) => {
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }, []);
+  const onChangeFilter = useCallback(
+    <K extends keyof SearchFilters>(name: K, value: SearchFilters[K]) => {
+      setFilters((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    },
+    [],
+  );
 
   const onSearch = useCallback(async () => {
     setData(null);
@@ -116,22 +132,18 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
     filters,
     onSearch,
     onChangeFilter,
-    onLoadMore: !!nextPageToken ? onLoadMore : undefined,
+    onLoadMore: nextPageToken ? onLoadMore : undefined,
   };
 
-  return (
-    <YouTubeSearchContext.Provider value={value}>
-      {children}
-    </YouTubeSearchContext.Provider>
-  );
+  return <YouTubeSearchContext.Provider value={value}>{children}</YouTubeSearchContext.Provider>;
 };
 
 export const useYouTubeSearch = (): YouTubeSearchContextValue => {
   const context = useContext(YouTubeSearchContext);
-  
+
   if (!context) {
     throw new Error('useYouTubeSearch must be used within a YouTubeSearchProvider');
   }
-  
+
   return context;
 };

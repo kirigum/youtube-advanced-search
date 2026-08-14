@@ -1,8 +1,9 @@
-import { FC } from "react";
+import { FC } from 'react';
 
-import { ExtendedYouTubeSearchVideoItem } from "@/types";
-import { parseISO8601Duration, formatToCompactNumber } from "@/utils";
-import { getFlagEmoji } from "./utils";
+import { ExtendedYouTubeSearchVideoItem } from '@/types';
+import { formatToCompactNumber, parseISO8601Duration } from '@/utils';
+
+import { getFlagEmoji } from './utils';
 
 export const VideoCard: FC<{
   video: ExtendedYouTubeSearchVideoItem;
@@ -12,24 +13,17 @@ export const VideoCard: FC<{
     video.snippet.thumbnails?.high?.url ||
     video.snippet.thumbnails?.medium?.url ||
     video.snippet.thumbnails?.default?.url;
-  const duration = video.contentDetails?.duration ? parseISO8601Duration(video.contentDetails.duration) : null;
+  const duration = video.contentDetails?.duration
+    ? parseISO8601Duration(video.contentDetails.duration)
+    : null;
 
   return (
     <div
       className="flex flex-col bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
       {...resProps}
     >
-      <a
-        href={videoUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block relative group"
-      >
-        <img
-          src={thumbnailUrl}
-          alt={video.snippet.title}
-          className="w-full h-48 object-cover"
-        />
+      <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="block relative group">
+        <img src={thumbnailUrl} alt={video.snippet.title} className="w-full h-48 object-cover" />
 
         {duration && (
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs font-medium px-1.5 py-0.5 rounded">
@@ -75,16 +69,12 @@ export const VideoCard: FC<{
 
         <div className="flex justify-between text-xs text-gray-500 border-t pt-3 mt-auto mb-4">
           {video.statistics?.viewCount && (
-            <span>
-              👀 {formatToCompactNumber(Number(video.statistics.viewCount))} views
-            </span>
+            <span>👀 {formatToCompactNumber(Number(video.statistics.viewCount))} views</span>
           )}
 
           {video.channel?.statistics?.subscriberCount && (
             <span>
-              👥{" "}
-              {formatToCompactNumber(Number(video.channel.statistics.subscriberCount))}{" "}
-              subs
+              👥 {formatToCompactNumber(Number(video.channel.statistics.subscriberCount))} subs
             </span>
           )}
         </div>

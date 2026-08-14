@@ -1,7 +1,7 @@
-import { FC } from "react";
+import { FC } from 'react';
 
-import { ExtendedYouTubeSearchVideoItem } from "@/types";
-import { VideoCard } from "@/components/video-card/VideoCard";
+import { VideoCard } from '@/components/video-card/VideoCard';
+import { ExtendedYouTubeSearchVideoItem } from '@/types';
 
 export const VideoList: FC<{ searchResults: ExtendedYouTubeSearchVideoItem[] }> = ({
   searchResults,

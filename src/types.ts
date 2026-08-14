@@ -14,7 +14,7 @@ export interface SearchFilters {
   order: 'relevance' | 'date' | 'viewCount' | 'rating';
 }
 export interface YouTubeChannelListResponse {
-  kind: "youtube#channelListResponse";
+  kind: 'youtube#channelListResponse';
   etag: string;
   pageInfo: {
     totalResults: number;
@@ -24,7 +24,7 @@ export interface YouTubeChannelListResponse {
 }
 
 export interface YouTubeChannelItem {
-  kind: "youtube#channel";
+  kind: 'youtube#channel';
   etag: string;
   id: string;
   snippet: {
@@ -58,7 +58,7 @@ export interface YouTubeThumbnail {
 }
 
 export interface YouTubeVideoListResponse {
-  kind: "youtube#videoListResponse";
+  kind: 'youtube#videoListResponse';
   etag: string;
   pageInfo: {
     totalResults: number;
@@ -68,21 +68,21 @@ export interface YouTubeVideoListResponse {
 }
 
 export interface YouTubeVideoItem {
-  kind: "youtube#video";
+  kind: 'youtube#video';
   etag: string;
   id: string;
   contentDetails: {
     duration: string; // ISO 8601 duration format (e.g., "PT15M33S")
-    dimension: "2d" | "3d";
-    definition: "hd" | "sd";
-    caption: "true" | "false";
+    dimension: '2d' | '3d';
+    definition: 'hd' | 'sd';
+    caption: 'true' | 'false';
     licensedContent: boolean;
     regionRestriction?: {
       allowed?: string[]; // ISO 3166-1 alpha-2 country codes
       blocked?: string[]; // ISO 3166-1 alpha-2 country codes
     };
-    contentRating: Record<string, any>; // Complex parental control schemas
-    projection: "rectangular" | "360";
+    contentRating: Record<string, unknown>; // Complex parental control schemas
+    projection: 'rectangular' | '360';
     hasCustomThumbnail?: boolean;
   };
   statistics: {
@@ -116,9 +116,8 @@ export interface YouTubeSearchQueryParameters {
   videoPaidProductPlacement?: 'true' | 'any';
 }
 
-
 export interface YouTubeSearchVideoResponse {
-  kind: "youtube#searchListResponse";
+  kind: 'youtube#searchListResponse';
   etag: string;
   nextPageToken?: string;
   prevPageToken?: string;
@@ -131,10 +130,10 @@ export interface YouTubeSearchVideoResponse {
 }
 
 export interface YouTubeSearchVideoItem {
-  kind: "youtube#searchResult";
+  kind: 'youtube#searchResult';
   etag: string;
   id: {
-    kind: "youtube#video";
+    kind: 'youtube#video';
     videoId: string;
   };
   snippet: {
@@ -148,7 +147,7 @@ export interface YouTubeSearchVideoItem {
       high?: YouTubeThumbnail;
     };
     channelTitle: string;
-    liveBroadcastContent: "none" | "upcoming" | "live";
+    liveBroadcastContent: 'none' | 'upcoming' | 'live';
     publishTime: string;
   };
 }

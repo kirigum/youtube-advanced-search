@@ -1,5 +1,5 @@
-import { SearchWidget } from "./components/search/SearchWidget";
-import { YouTubeSearchProvider } from "./context/youtube-search-context";
+import { SearchWidget } from './components/search/SearchWidget';
+import { YouTubeSearchProvider } from './context/youtube-search-context';
 
 function App() {
   return (
