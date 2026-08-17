@@ -3,8 +3,6 @@ import { FC } from 'react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-// Standard icons
-
 import { VideoList } from '@/components/video-list/VideoList';
 import { useYouTubeSearch } from '@/context/youtube-search-context';
 

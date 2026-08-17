@@ -13,6 +13,7 @@ export interface SearchFilters {
   withPaidPromotion: boolean;
   order: 'relevance' | 'date' | 'viewCount' | 'rating';
 }
+
 export interface YouTubeChannelListResponse {
   kind: 'youtube#channelListResponse';
   etag: string;

@@ -14,13 +14,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
-export interface Option {
-  label: string;
-  value: string;
-}
-
 interface MultiSelectProps {
-  options: Option[];
+  options: { label: string; value: string }[];
   selected: string[];
   onChange: (values: string[]) => void;
   placeholder?: string;
@@ -36,8 +31,16 @@ export function MultiSelect({
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
-  const handleUnselect = (value: string) => {
-    onChange(selected.filter((s) => s !== value));
+  const handleUnselect = (itemValue: string) => {
+    onChange(selected.filter((i) => i !== itemValue));
+  };
+
+  const handleSelect = (itemValue: string) => {
+    if (selected.includes(itemValue)) {
+      onChange(selected.filter((i) => i !== itemValue)); // Remove if exists
+    } else {
+      onChange([...selected, itemValue]); // Add if doesn't exist
+    }
   };
 
   return (
@@ -47,70 +50,60 @@ export function MultiSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn('w-full justify-between hover:bg-background', className)}
-          onClick={() => setOpen(!open)}
+          className={cn(
+            'w-full justify-between bg-background font-normal h-auto min-h-9 py-1.5 px-3',
+            className,
+          )}
         >
-          <div className="flex flex-wrap gap-1 overflow-hidden">
-            {selected.length === 0 && (
-              <span className="text-muted-foreground font-normal">{placeholder}</span>
-            )}
-            {selected.map((item) => {
-              const option = options.find((o) => o.value === item);
+          <div className="flex flex-wrap gap-1 items-center">
+            {selected.length === 0 && <span className="text-muted-foreground">{placeholder}</span>}
+            {selected.map((val) => {
+              const option = options.find((o) => o.value === val);
+              if (!option) return null;
               return (
                 <Badge
+                  key={option.value}
                   variant="secondary"
-                  key={item}
-                  className="mr-1 mb-1 font-normal"
+                  className="rounded-sm px-1.5 py-0.5 text-xs font-medium flex items-center gap-1 hover:bg-secondary"
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent opening the popover when clicking the badge
-                    handleUnselect(item);
+                    e.stopPropagation(); // Prevent opening the popover when clicking the badge's X
+                    handleUnselect(option.value);
                   }}
                 >
-                  {option?.label || item}
-                  <div className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer hover:bg-muted">
-                    <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                  {option.label}
+                  <div className="rounded-full bg-transparent hover:bg-muted-foreground/20 p-0.5 transition-colors">
+                    <X className="h-3 w-3" />
                   </div>
                 </Badge>
               );
             })}
           </div>
-          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 ml-2" />
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-full p-0 text-foreground" align="start">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandInput placeholder="Search regions..." />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => {
-                const isSelected = selected.includes(option.value);
-                return (
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => {
-                      if (isSelected) {
-                        onChange(selected.filter((s) => s !== option.value));
-                      } else {
-                        onChange([...selected, option.value]);
-                      }
-                    }}
-                  >
-                    <div
-                      className={cn(
-                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                        isSelected
-                          ? 'bg-primary text-primary-foreground'
-                          : 'opacity-50 [&_svg]:invisible',
-                      )}
-                    >
-                      <Check className={cn('h-4 w-4')} />
-                    </div>
-                    {option.label}
-                  </CommandItem>
-                );
-              })}
+              {options.map((option) => (
+                <CommandItem
+                  key={option.value}
+                  // Pass label so the text-based search accurately matches what the user types
+                  value={option.label}
+                  onSelect={() => handleSelect(option.value)}
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      selected.includes(option.value) ? 'opacity-100' : 'opacity-0',
+                    )}
+                  />
+                  {option.label}
+                </CommandItem>
+              ))}
             </CommandGroup>
           </CommandList>
         </Command>
