@@ -30,7 +30,7 @@ import { useYouTubeSearch } from '@/context/youtube-search-context';
 import { cn } from '@/lib/utils';
 import { SearchFilters } from '@/types';
 
-import { UNIQUE_LANGUAGES, UNIQUE_REGIONS } from './constants';
+import { UNIQUE_LANGUAGES, UNIQUE_REGIONS } from '@/constants/regions';
 
 const validateMinMax = (min?: number, max?: number) => {
   if (min !== undefined && max !== undefined) {
