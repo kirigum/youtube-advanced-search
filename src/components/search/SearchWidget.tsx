@@ -11,7 +11,8 @@ import { SearchForm } from './SearchForm';
 export const SearchWidget: FC = () => {
   const { data, loading, error, onLoadMore } = useYouTubeSearch();
 
-  const noResultsFound = !loading && data && data.length === 0 && !onLoadMore;
+  const noResultsFound = data && data.length === 0 && !onLoadMore;
+  const resultsFilteredOut = data && data.length === 0 && !!onLoadMore;
 
   return (
     <section className="max-w-7xl mx-auto p-4 md:p-6 bg-background min-h-screen">
@@ -42,6 +43,16 @@ export const SearchWidget: FC = () => {
       )}
 
       {data && data.length > 0 ? <VideoList videos={data} /> : null}
+
+      {resultsFilteredOut && (
+        <div className="text-center py-10 bg-muted/30 rounded-lg border border-dashed mb-8">
+          <PlaySquare className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-medium text-foreground">Videos found, but none match these filters</h3>
+          <p className="text-muted-foreground mt-1">
+            Press Load More to continue searching for videos that match your criteria.
+          </p>
+        </div>
+      )}
 
       {noResultsFound && (
         <div className="text-center py-20 bg-muted/30 rounded-lg border border-dashed mb-8">

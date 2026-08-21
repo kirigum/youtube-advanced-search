@@ -24,7 +24,7 @@ This is a React + TypeScript + Vite app for searching YouTube videos with filter
 - Use absolute imports with `@/` for shared app modules.
   - `@/components/...` for app and UI components
   - `@/types` for shared types in `src/types.ts`
-  - `@/utils` for shared logic such as duration/number helpers
+  - `@/utils/...` for shared logic such as duration/number helpers
   - `@/lib/utils` for Tailwind helpers like `cn()`
   - `@/constants/...` for shared constants and option data
 - Keep component-specific logic next to the component when it is not reused elsewhere.
