@@ -7,13 +7,14 @@ A React + TypeScript + Vite widget for searching YouTube videos with advanced fi
 - [React 18](https://react.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Vite](https://vitejs.dev/)
+- [Shadcn UI](https://ui.shadcn.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [YouTube Data API v3](https://developers.google.com/youtube/v3)
 
 ## Prerequisites
 
 - **Node.js** 18 or newer ([download](https://nodejs.org/))
-- **npm** 9+ (bundled with Node.js) — or use `pnpm` / `yarn` if you prefer
+- **npm** 9+ (bundled with Node.js) — or use `pnpm` / `yarn`
 - A **YouTube Data API v3 key** from the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 
 ### How to get a YouTube API key
@@ -23,7 +24,7 @@ A React + TypeScript + Vite widget for searching YouTube videos with advanced fi
 3. Go to **APIs & Services → Credentials** and click **Create credentials → API key**.
 4. Copy the generated key — you will paste it into `.env` in the next step.
 
-## Setup
+## 🚀 Setup
 
 1. **Clone the repository** (or download the source):
 
@@ -51,8 +52,6 @@ A React + TypeScript + Vite widget for searching YouTube videos with advanced fi
    ```env
    VITE_YOUTUBE_API_KEY=your_youtube_api_key_here
    ```
-
-   > **Note:** Vite only exposes variables prefixed with `VITE_` to the client. The `.env` file must live in the project root (next to `package.json`).
 
 ## Running Locally
 

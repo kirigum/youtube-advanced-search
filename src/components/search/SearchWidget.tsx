@@ -1,5 +1,8 @@
+import { AlertCircle, Loader2, PlaySquare } from 'lucide-react';
 import { FC } from 'react';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { VideoList } from '@/components/video-list/VideoList';
 import { useYouTubeSearch } from '@/context/youtube-search-context';
 
@@ -8,31 +11,71 @@ import { SearchForm } from './SearchForm';
 export const SearchWidget: FC = () => {
   const { data, loading, error, onLoadMore } = useYouTubeSearch();
 
+  const noResultsFound = data && data.length === 0 && !onLoadMore;
+  const resultsFilteredOut = data && data.length === 0 && !!onLoadMore;
+
   return (
-    <section className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">YouTube Advanced Search</h1>
+    <section className="max-w-7xl mx-auto p-4 md:p-6 bg-background min-h-screen">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          YouTube Advanced Search
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Filter and analyze YouTube content with pinpoint accuracy.
+        </p>
+      </div>
 
       <SearchForm />
 
-      {error && <div className="p-4 mb-6 text-red-700 bg-red-100 rounded-md">{error}</div>}
+      {error && (
+        <Alert variant="destructive" className="mb-8">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Search Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-      {data && data.length > 0 ? <VideoList searchResults={data} /> : null}
+      {loading && !data && (
+        <div className="flex flex-col items-center justify-center py-24 text-muted-foreground animate-pulse">
+          <Loader2 className="h-10 w-10 animate-spin mb-4 opacity-50" />
+          <p className="font-medium">Scanning YouTube...</p>
+        </div>
+      )}
 
-      {!loading && data && data.length === 0 && !onLoadMore && (
-        <div className="text-center py-12 text-gray-500">
-          No results match your exact criteria. Try adjusting your keyword or filters.
+      {data && data.length > 0 ? <VideoList videos={data} /> : null}
+
+      {resultsFilteredOut && (
+        <div className="text-center py-10 bg-muted/30 rounded-lg border border-dashed mb-8">
+          <PlaySquare className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-medium text-foreground">Videos found, but none match these filters</h3>
+          <p className="text-muted-foreground mt-1">
+            Press Load More to continue searching for videos that match your criteria.
+          </p>
+        </div>
+      )}
+
+      {noResultsFound && (
+        <div className="text-center py-20 bg-muted/30 rounded-lg border border-dashed mb-8">
+          <PlaySquare className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-medium text-foreground">No matching videos found</h3>
+          <p className="text-muted-foreground mt-1">
+            No results match your exact criteria. Try adjusting your keyword or filters.
+          </p>
         </div>
       )}
 
       {onLoadMore && (
-        <div className="flex justify-center items-center space-x-4 mt-8 pb-8">
-          <button
-            disabled={loading}
+        <div className="flex justify-center mt-10 mb-8">
+          <Button
             onClick={onLoadMore}
-            className="px-6 py-2 bg-white border border-gray-300 text-gray-800 rounded-md disabled:opacity-50 hover:bg-gray-50 transition-colors font-medium shadow-sm"
+            variant="outline"
+            size="lg"
+            disabled={loading}
+            className="px-10 shadow-sm"
           >
-            Load More
-          </button>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loading ? 'Loading...' : 'Load More'}
+          </Button>
         </div>
       )}
     </section>

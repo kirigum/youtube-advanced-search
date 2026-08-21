@@ -1,55 +1,35 @@
 import React, { PropsWithChildren, createContext, useCallback, useContext, useState } from 'react';
 
 import youtubeSearchService from '@/services/youtube-search';
-import { ExtendedYouTubeSearchVideoItem, SearchFilters } from '@/types';
+import { ExtendedYouTubeSearchVideoItem, YouTubeSearchVideoOptions } from '@/types';
 
 interface YouTubeSearchContextValue {
   data: ExtendedYouTubeSearchVideoItem[] | null;
   loading: boolean;
   error: string | null;
-  filters: SearchFilters;
+  searchOptions: YouTubeSearchVideoOptions;
   onSearch: () => Promise<void>;
-  onChangeFilter: <K extends keyof SearchFilters>(name: K, value: SearchFilters[K]) => void;
+  onChangeFilter: <K extends keyof YouTubeSearchVideoOptions>(
+    name: K,
+    value: YouTubeSearchVideoOptions[K],
+  ) => void;
   onLoadMore?: () => Promise<void>;
 }
 
-const FILTERS_INITIAL_STATE: SearchFilters = {
-  keyword: '',
+const FILTERS_INITIAL_STATE: YouTubeSearchVideoOptions = {
+  q: '',
   order: 'relevance',
-  dateFilter: 'any',
   regionCode: 'any',
   relevanceLanguage: 'any',
   videoDuration: 'any',
   excludedRegions: [],
-  excludeLive: false,
-  withPaidPromotion: false,
-};
-
-const getPublishedAfterDate = (value: string): string | undefined => {
-  if (value === 'any') {
-    return;
-  }
-
-  const date = new Date();
-
-  if (value === 'Today') {
-    date.setDate(date.getDate() - 1);
-  }
-  if (value === 'This Week') {
-    date.setDate(date.getDate() - 7);
-  }
-  if (value === 'This Month') {
-    date.setMonth(date.getMonth() - 1);
-  }
-
-  return date.toISOString();
 };
 
 const YouTubeSearchContext = createContext<YouTubeSearchContextValue | null>(null);
 
 export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [data, setData] = useState<ExtendedYouTubeSearchVideoItem[] | null>(null);
-  const [filters, setFilters] = useState<SearchFilters>(FILTERS_INITIAL_STATE);
+  const [searchOptions, setSearchOptions] = useState<YouTubeSearchVideoOptions>(FILTERS_INITIAL_STATE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
@@ -60,26 +40,9 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
       setError(null);
 
       try {
-        const { keyword, dateFilter, withPaidPromotion, excludeLive, ...resFilters } = filters;
-        const omittedFilters = Object.entries(resFilters).reduce((acc, [key, value]) => {
-          if (!value || (typeof value === 'string' && value === 'any')) {
-            return acc;
-          }
-
-          return { ...acc, [key]: value };
-        }, {});
-        const publishedAfter = getPublishedAfterDate(dateFilter);
-
         const searchData = await youtubeSearchService.searchVideos({
-          part: 'snippet',
-          type: 'video',
-          maxResults: '50',
-          q: keyword,
-          ...omittedFilters,
-          ...(publishedAfter && { publishedAfter }),
+          ...searchOptions,
           ...(pageToken && { pageToken }),
-          ...(withPaidPromotion && { videoPaidProductPlacement: 'true' }),
-          ...(excludeLive && { eventType: 'completed' }),
         });
 
         return {
@@ -93,7 +56,7 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
         setLoading(false);
       }
     },
-    [filters],
+    [searchOptions],
   );
 
   const onLoadMore = useCallback(async () => {
@@ -110,8 +73,8 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
   }, [executeSearch, nextPageToken]);
 
   const onChangeFilter = useCallback(
-    <K extends keyof SearchFilters>(name: K, value: SearchFilters[K]) => {
-      setFilters((prev) => ({
+    <K extends keyof YouTubeSearchVideoOptions>(name: K, value: YouTubeSearchVideoOptions[K]) => {
+      setSearchOptions((prev) => ({
         ...prev,
         [name]: value,
       }));
@@ -135,7 +98,7 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
     data,
     loading,
     error,
-    filters,
+    searchOptions,
     onSearch,
     onChangeFilter,
     onLoadMore: nextPageToken ? onLoadMore : undefined,
