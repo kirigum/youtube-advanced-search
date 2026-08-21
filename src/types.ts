@@ -1,20 +1,3 @@
-export interface SearchFilters {
-  keyword: string;
-  minViews?: number;
-  maxViews?: number;
-  minSubs?: number;
-  maxSubs?: number;
-  publishedAfter?: string;
-  publishedBefore?: string;
-  regionCode: string;
-  relevanceLanguage: string;
-  videoDuration: 'any' | 'short' | 'medium' | 'long';
-  excludedRegions: string[];
-  excludeLive: boolean;
-  withPaidPromotion: boolean;
-  order: 'relevance' | 'date' | 'viewCount' | 'rating';
-}
-
 export interface YouTubeChannelListResponse {
   kind: 'youtube#channelListResponse';
   etag: string;
@@ -163,7 +146,7 @@ export interface ExtendedYouTubeSearchVideoItem extends YouTubeSearchVideoItem {
   };
 }
 
-export interface YouTubeSearchVideoOptions extends Omit<YouTubeSearchQueryParameters, 'key'> {
+export interface YouTubeSearchVideoOptions extends Omit<YouTubeSearchQueryParameters, 'key' | 'part' | 'type' | 'maxResults'> {
   minViews?: number;
   maxViews?: number;
   minSubs?: number;

@@ -2,6 +2,7 @@ import { addDays } from 'date-fns';
 import { Activity, Clock, Globe, Loader2, Search, SlidersHorizontal } from 'lucide-react';
 import { FC, FormEvent, useCallback, useState } from 'react';
 
+import { DateData, DatePicker } from '@/components/date-picker/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Combobox } from '@/components/ui/combobox';
@@ -19,17 +20,16 @@ import { Switch } from '@/components/ui/switch';
 import { UNIQUE_LANGUAGES, UNIQUE_REGIONS } from '@/constants/regions';
 import { useYouTubeSearch } from '@/context/youtube-search-context';
 import { cn } from '@/lib/utils';
-import { SearchFilters } from '@/types';
+import { YouTubeSearchVideoOptions } from '@/types';
 
-import { DatePicker, DateData } from '@/components/date-picker/DatePicker';
 import { validateMinMax } from './utils';
 
 export const SearchForm: FC = () => {
-  const { loading, filters, onSearch, onChangeFilter } = useYouTubeSearch();
+  const { loading, searchOptions, onSearch, onChangeFilter } = useYouTubeSearch();
   const [isDateError, setIsDateError] = useState(false);
 
-  const isSubsError = !validateMinMax(filters.minSubs, filters.maxSubs);
-  const isViewsError = !validateMinMax(filters.minViews, filters.maxViews);
+  const isSubsError = !validateMinMax(searchOptions.minSubs, searchOptions.maxSubs);
+  const isViewsError = !validateMinMax(searchOptions.minViews, searchOptions.maxViews);
   const hasErrors = isViewsError || isSubsError || isDateError;
 
   const handleDateChange = useCallback(
@@ -41,7 +41,10 @@ export const SearchForm: FC = () => {
     [onChangeFilter],
   );
 
-  const handleNumberChange = (field: keyof SearchFilters, value: string) => {
+  const handleNumberChange = (
+    field: keyof Pick<YouTubeSearchVideoOptions, 'minViews' | 'maxViews' | 'minSubs' | 'maxSubs'>,
+    value: string,
+  ) => {
     if (value === '') {
       onChangeFilter(field, undefined);
       return;
@@ -68,9 +71,9 @@ export const SearchForm: FC = () => {
           <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
           <Input
             required
-            value={filters.keyword}
+            value={searchOptions.q}
             placeholder="Search keywords..."
-            onChange={(event) => onChangeFilter('keyword', event.target.value)}
+            onChange={(event) => onChangeFilter('q', event.target.value)}
             className="pl-12 pr-32 h-14 text-base md:text-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 rounded-2xl"
           />
           <div className="absolute right-2 flex items-center">
@@ -89,8 +92,10 @@ export const SearchForm: FC = () => {
             <div className="flex items-center space-x-2.5">
               <Switch
                 id="excludeLive"
-                checked={filters.excludeLive}
-                onCheckedChange={(value) => onChangeFilter('excludeLive', value)}
+                checked={searchOptions.eventType === 'completed'}
+                onCheckedChange={(value) =>
+                  onChangeFilter('eventType', value ? 'completed' : undefined)
+                }
               />
               <Label
                 htmlFor="excludeLive"
@@ -102,8 +107,10 @@ export const SearchForm: FC = () => {
             <div className="flex items-center space-x-2.5">
               <Switch
                 id="withPaidPromotion"
-                checked={filters.withPaidPromotion}
-                onCheckedChange={(value) => onChangeFilter('withPaidPromotion', value)}
+                checked={searchOptions.videoPaidProductPlacement === 'true'}
+                onCheckedChange={(value) =>
+                  onChangeFilter('videoPaidProductPlacement', value ? 'true' : 'any')
+                }
               />
               <Label
                 htmlFor="withPaidPromotion"
@@ -118,8 +125,10 @@ export const SearchForm: FC = () => {
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground hidden sm:block" />
             <Label className="whitespace-nowrap text-muted-foreground">Sort by:</Label>
             <Select
-              value={filters.order || 'relevance'}
-              onValueChange={(value: SearchFilters['order']) => onChangeFilter('order', value)}
+              value={searchOptions.order}
+              onValueChange={(value) =>
+                onChangeFilter('order', value as YouTubeSearchVideoOptions['order'])
+              }
             >
               <SelectTrigger className="h-8 border-transparent bg-background shadow-sm">
                 <SelectValue />
@@ -158,7 +167,7 @@ export const SearchForm: FC = () => {
                   type="number"
                   min="0"
                   placeholder="Min views"
-                  value={filters.minViews}
+                  value={searchOptions.minViews}
                   onChange={(event) => handleNumberChange('minViews', event.target.value)}
                   className={cn('bg-background', isViewsError && 'border-destructive')}
                 />
@@ -166,7 +175,7 @@ export const SearchForm: FC = () => {
                   min="0"
                   type="number"
                   placeholder="Max views"
-                  value={filters.maxViews}
+                  value={searchOptions.maxViews}
                   onChange={(event) => handleNumberChange('maxViews', event.target.value)}
                   className={cn('bg-background', isViewsError && 'border-destructive')}
                 />
@@ -186,7 +195,7 @@ export const SearchForm: FC = () => {
                 <Input
                   type="number"
                   min="0"
-                  value={filters.minSubs}
+                  value={searchOptions.minSubs}
                   placeholder="Min subs"
                   onChange={(event) => handleNumberChange('minSubs', event.target.value)}
                   className={cn('bg-background', isSubsError && 'border-destructive')}
@@ -194,7 +203,7 @@ export const SearchForm: FC = () => {
                 <Input
                   type="number"
                   min="0"
-                  value={filters.maxSubs}
+                  value={searchOptions.maxSubs}
                   placeholder="Max subs"
                   className={cn('bg-background', isSubsError && 'border-destructive')}
                   onChange={(event) => handleNumberChange('maxSubs', event.target.value)}
@@ -223,9 +232,12 @@ export const SearchForm: FC = () => {
                 Video Length
               </Label>
               <Select
-                value={filters.videoDuration || 'any'}
-                onValueChange={(value: SearchFilters['videoDuration']) =>
-                  onChangeFilter('videoDuration', value)
+                value={searchOptions.videoDuration || 'any'}
+                onValueChange={(value) =>
+                  onChangeFilter(
+                    'videoDuration',
+                    value as YouTubeSearchVideoOptions['videoDuration'],
+                  )
                 }
               >
                 <SelectTrigger className="bg-background">
@@ -259,8 +271,8 @@ export const SearchForm: FC = () => {
                 </Label>
                 <Combobox
                   options={UNIQUE_LANGUAGES}
-                  value={filters.relevanceLanguage || 'any'}
-                  onChange={(value) => onChangeFilter('relevanceLanguage', value)}
+                  value={searchOptions.relevanceLanguage || 'any'}
+                  onChange={(value) => onChangeFilter('relevanceLanguage', value === 'any' ? undefined : value)}
                   searchPlaceholder="Search languages..."
                 />
               </div>
@@ -271,8 +283,8 @@ export const SearchForm: FC = () => {
                 </Label>
                 <Combobox
                   options={UNIQUE_REGIONS}
-                  value={filters.regionCode || 'any'}
-                  onChange={(value) => onChangeFilter('regionCode', value)}
+                  value={searchOptions.regionCode || 'any'}
+                  onChange={(value) => onChangeFilter('regionCode', value === 'any' ? undefined : value)}
                   searchPlaceholder="Search countries..."
                 />
               </div>
@@ -284,7 +296,7 @@ export const SearchForm: FC = () => {
               </Label>
               <MultiSelect
                 options={UNIQUE_REGIONS}
-                selected={filters.excludedRegions || []}
+                selected={searchOptions.excludedRegions || []}
                 onChange={(values) => onChangeFilter('excludedRegions', values)}
                 placeholder="Block specific countries..."
                 className="bg-background"

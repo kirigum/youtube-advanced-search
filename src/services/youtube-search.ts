@@ -78,8 +78,14 @@ class YouTubeSearchService {
     excludedRegions,
     ...options
   }: YouTubeSearchVideoOptions) {
+    const omittedOptions = Object.fromEntries(
+      Object.entries(options).filter(([_, value]) => Boolean(value)),
+    );
     const queryParams: Record<string, string> = {
-      ...options,
+      ...omittedOptions,
+      part: 'snippet',
+      type: 'video',
+      maxResults: '50',
       key: this.API_KEY,
     };
 
