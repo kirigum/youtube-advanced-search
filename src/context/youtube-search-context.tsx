@@ -16,33 +16,12 @@ interface YouTubeSearchContextValue {
 const FILTERS_INITIAL_STATE: SearchFilters = {
   keyword: '',
   order: 'relevance',
-  dateFilter: 'any',
   regionCode: 'any',
   relevanceLanguage: 'any',
   videoDuration: 'any',
   excludedRegions: [],
   excludeLive: false,
   withPaidPromotion: false,
-};
-
-const getPublishedAfterDate = (value: string): string | undefined => {
-  if (value === 'any') {
-    return;
-  }
-
-  const date = new Date();
-
-  if (value === 'Today') {
-    date.setDate(date.getDate() - 1);
-  }
-  if (value === 'This Week') {
-    date.setDate(date.getDate() - 7);
-  }
-  if (value === 'This Month') {
-    date.setMonth(date.getMonth() - 1);
-  }
-
-  return date.toISOString();
 };
 
 const YouTubeSearchContext = createContext<YouTubeSearchContextValue | null>(null);
@@ -60,7 +39,7 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
       setError(null);
 
       try {
-        const { keyword, dateFilter, withPaidPromotion, excludeLive, ...resFilters } = filters;
+        const { keyword, withPaidPromotion, excludeLive, ...resFilters } = filters;
         const omittedFilters = Object.entries(resFilters).reduce((acc, [key, value]) => {
           if (!value || (typeof value === 'string' && value === 'any')) {
             return acc;
@@ -68,15 +47,12 @@ export const YouTubeSearchProvider: React.FC<PropsWithChildren> = ({ children })
 
           return { ...acc, [key]: value };
         }, {});
-        const publishedAfter = getPublishedAfterDate(dateFilter);
-
         const searchData = await youtubeSearchService.searchVideos({
           part: 'snippet',
           type: 'video',
           maxResults: '50',
           q: keyword,
           ...omittedFilters,
-          ...(publishedAfter && { publishedAfter }),
           ...(pageToken && { pageToken }),
           ...(withPaidPromotion && { videoPaidProductPlacement: 'true' }),
           ...(excludeLive && { eventType: 'completed' }),

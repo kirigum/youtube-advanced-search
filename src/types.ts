@@ -4,7 +4,8 @@ export interface SearchFilters {
   maxViews?: number;
   minSubs?: number;
   maxSubs?: number;
-  dateFilter: 'any' | 'Today' | 'This Week' | 'This Month';
+  publishedAfter?: string;
+  publishedBefore?: string;
   regionCode: string;
   relevanceLanguage: string;
   videoDuration: 'any' | 'short' | 'medium' | 'long';

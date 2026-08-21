@@ -1,23 +1,13 @@
-// import { format } from 'date-fns';
-import {
-  Activity,
-  // CalendarIcon,
-  Clock,
-  Globe,
-  Loader2,
-  Search,
-  SlidersHorizontal,
-} from 'lucide-react';
-import { FC, FormEvent } from 'react';
+import { addDays } from 'date-fns';
+import { Activity, Clock, Globe, Loader2, Search, SlidersHorizontal } from 'lucide-react';
+import { FC, FormEvent, useCallback, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-// import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
-// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -26,30 +16,30 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { UNIQUE_LANGUAGES, UNIQUE_REGIONS } from '@/constants/regions';
 import { useYouTubeSearch } from '@/context/youtube-search-context';
 import { cn } from '@/lib/utils';
 import { SearchFilters } from '@/types';
 
-import { UNIQUE_LANGUAGES, UNIQUE_REGIONS } from '@/constants/regions';
-
-const validateMinMax = (min?: number, max?: number) => {
-  if (min !== undefined && max !== undefined) {
-    return min <= max;
-  }
-
-  return true;
-};
+import { DatePicker, DateData } from '@/components/date-picker/DatePicker';
+import { validateMinMax } from './utils';
 
 export const SearchForm: FC = () => {
   const { loading, filters, onSearch, onChangeFilter } = useYouTubeSearch();
+  const [isDateError, setIsDateError] = useState(false);
 
   const isSubsError = !validateMinMax(filters.minSubs, filters.maxSubs);
   const isViewsError = !validateMinMax(filters.minViews, filters.maxViews);
-  // const isDateError =
-  //   filters.customDateFrom !== undefined &&
-  //   filters.customDateTo !== undefined &&
-  //   filters.customDateFrom > filters.customDateTo;
-  const hasErrors = isViewsError || isSubsError;
+  const hasErrors = isViewsError || isSubsError || isDateError;
+
+  const handleDateChange = useCallback(
+    ({ from, to, isInvalid }: DateData) => {
+      onChangeFilter('publishedAfter', from?.toISOString());
+      onChangeFilter('publishedBefore', to ? addDays(new Date(to), 1).toISOString() : undefined);
+      setIsDateError(isInvalid);
+    },
+    [onChangeFilter],
+  );
 
   const handleNumberChange = (field: keyof SearchFilters, value: string) => {
     if (value === '') {
@@ -65,7 +55,9 @@ export const SearchForm: FC = () => {
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
+
     if (hasErrors) return;
+
     onSearch();
   };
 
@@ -75,7 +67,6 @@ export const SearchForm: FC = () => {
         <div className="relative flex items-center w-full shadow-sm rounded-2xl bg-background border border-input focus-within:ring-2 focus-within:ring-ring focus-within:border-primary transition-all">
           <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
           <Input
-            // id="keyword"
             required
             value={filters.keyword}
             placeholder="Search keywords..."
@@ -97,7 +88,7 @@ export const SearchForm: FC = () => {
           <div className="flex flex-wrap items-center gap-6 px-2">
             <div className="flex items-center space-x-2.5">
               <Switch
-                // id="excludeLive"
+                id="excludeLive"
                 checked={filters.excludeLive}
                 onCheckedChange={(value) => onChangeFilter('excludeLive', value)}
               />
@@ -249,94 +240,7 @@ export const SearchForm: FC = () => {
               </Select>
             </div>
 
-            {/* <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Publication Date
-              </Label>
-              <Select
-                value={filters.dateFilter || 'any'}
-                onValueChange={(value: any) => {
-                  onChangeFilter('dateFilter', value);
-                  if (value !== 'custom') {
-                    onChangeFilter('customDateFrom', undefined);
-                    onChangeFilter('customDateTo', undefined);
-                  }
-                }}
-              >
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Select date range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any</SelectItem>
-                  <SelectItem value="This Week">This Week</SelectItem>
-                  <SelectItem value="This Month">This Month</SelectItem>
-                  <SelectItem value="This Year">This Year</SelectItem>
-                  <SelectItem value="custom">Custom Range...</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {filters.dateFilter === 'custom' && (
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full px-2 text-xs justify-start font-normal bg-background',
-                        !filters.customDateFrom && 'text-muted-foreground',
-                        isDateError && 'border-destructive',
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {filters.customDateFrom
-                        ? format(filters.customDateFrom, 'MMM d, yyyy')
-                        : 'From date'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={filters.customDateFrom}
-                      onSelect={(d) => onChangeFilter('customDateFrom', d)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full px-2 text-xs justify-start font-normal bg-background',
-                        !filters.customDateTo && 'text-muted-foreground',
-                        isDateError && 'border-destructive',
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {filters.customDateTo
-                        ? format(filters.customDateTo, 'MMM d, yyyy')
-                        : 'To date'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={filters.customDateTo}
-                      onSelect={(d) => onChangeFilter('customDateTo', d)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                {isDateError && (
-                  <p className="col-span-2 text-xs text-destructive font-medium">
-                    Invalid date range.
-                  </p>
-                )}
-              </div>
-            )} */}
+            <DatePicker label="Publication Date" onDateChange={handleDateChange} />
           </CardContent>
         </Card>
 

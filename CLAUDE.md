@@ -17,7 +17,6 @@ This is a React + TypeScript + Vite app for searching YouTube videos with filter
 - Install dependencies: `npm install`
 - Start dev server: `npm run dev`
 - Build app: `npm run build`
-- Preview production build: `npm run preview`
 - Add shadcn component: `npx shadcn@latest add <component>`
 - Run lint: `npm run lint`
 
