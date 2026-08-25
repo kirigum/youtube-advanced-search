@@ -79,7 +79,7 @@ class YouTubeSearchService {
     ...options
   }: YouTubeSearchVideoOptions) {
     const omittedOptions = Object.fromEntries(
-      Object.entries(options).filter(([_, value]) => Boolean(value)),
+      Object.entries(options).filter(([, value]) => Boolean(value)),
     );
     const queryParams: Record<string, string> = {
       ...omittedOptions,

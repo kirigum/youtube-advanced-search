@@ -21,7 +21,13 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'react-refresh/only-export-components': [
+        'warn',
+        {
+          allowConstantExport: true,
+          allowExportNames: ['badgeVariants', 'buttonVariants', 'useYouTubeSearch'],
+        },
+      ],
       '@typescript-eslint/no-unused-vars': 'warn',
       'no-duplicate-imports': 'error',
       'no-console': 'warn',
